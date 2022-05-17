@@ -1,9 +1,11 @@
 // UnicornHookRegistration.cs
 // Author: Ondřej Ondryáš
 
-namespace Code4Arm.Unicorn.Abstractions;
+using SharpCorn.Abstractions;
 
-public readonly struct UnicornHookRegistration : IEquatable<UnicornHookRegistration>
+namespace SharpCorn;
+
+public readonly struct UnicornHookRegistration : IUnicornHookRegistration, IEquatable<UnicornHookRegistration>
 {
     internal nuint NativeHookId { get; init; }
     internal int ManagedHookId { get; init; }
@@ -22,6 +24,12 @@ public readonly struct UnicornHookRegistration : IEquatable<UnicornHookRegistrat
         ReferenceEquals(Unicorn, other.Unicorn)
         && NativeHookId.Equals(other.NativeHookId)
         && ManagedHookId == other.ManagedHookId;
+
+    public bool Equals(IUnicornHookRegistration? other) =>
+        other is UnicornHookRegistration hr
+        && ReferenceEquals(Unicorn, other.Unicorn)
+        && NativeHookId.Equals(hr.NativeHookId)
+        && ManagedHookId == hr.ManagedHookId;
 
     public override bool Equals(object? obj) => obj is UnicornHookRegistration other && this.Equals(other);
 

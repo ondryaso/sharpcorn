@@ -1,9 +1,9 @@
 ﻿// UnicornErrorExtensions.cs
 // Author: Ondřej Ondryáš
 
-using Code4Arm.Unicorn.Abstractions.Enums;
+using SharpCorn.Abstractions.Enums;
 
-namespace Code4Arm.Unicorn.Abstractions.Extensions;
+namespace SharpCorn.Abstractions.Extensions;
 
 public static class UnicornErrorExtensions
 {

@@ -2,11 +2,11 @@
 
 // ReSharper disable InconsistentNaming
 
-namespace Code4Arm.Unicorn;
+namespace SharpCorn;
 
 internal static class Native
 {
-    private const string LibName = "unicorn";
+    private const string LibName = "/home/ondryaso/Projects/bp/unicorn/build/libunicorn.so.2";
 
     [DllImport(LibName, CallingConvention = CallingConvention.Cdecl)]
     public static extern unsafe int uc_version(uint* major, uint* minor);

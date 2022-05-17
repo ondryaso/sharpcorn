@@ -1,10 +1,10 @@
-﻿using Code4Arm.Unicorn.Abstractions;
-using Code4Arm.Unicorn.Abstractions.Enums;
+﻿using SharpCorn.Abstractions;
+using SharpCorn.Abstractions.Enums;
 
 // ReSharper disable CheckNamespace
 // ReSharper disable InconsistentNaming
 
-namespace Code4Arm.Unicorn.Callbacks;
+namespace SharpCorn.Callbacks;
 
 // uc_cb_hookcode_t
 public delegate void CodeHookCallback(IUnicorn engine, ulong address, uint size);

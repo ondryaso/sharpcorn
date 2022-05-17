@@ -1,9 +1,9 @@
-﻿using Code4Arm.Unicorn.Abstractions.Enums;
-using Code4Arm.Unicorn.Callbacks;
+﻿using SharpCorn.Abstractions.Enums;
+using SharpCorn.Callbacks;
 
 // ReSharper disable InconsistentNaming
 
-namespace Code4Arm.Unicorn.Abstractions;
+namespace SharpCorn.Abstractions;
 
 public interface IUnicorn : IUnicornContext
 {
@@ -75,22 +75,22 @@ public interface IUnicorn : IUnicornContext
     nuint AddNativeHook(IntPtr callbackPointer, int type, ulong startAddress, ulong endAddress, nint userData = 0);
     nuint AddNativeHook(Delegate callback, int type, ulong startAddress, ulong endAddress, nint userData = 0);
 
-    UnicornHookRegistration AddCodeHook(CodeHookCallback callback, ulong startAddress, ulong endAddress);
+    IUnicornHookRegistration AddCodeHook(CodeHookCallback callback, ulong startAddress, ulong endAddress);
 
-    UnicornHookRegistration AddBlockHook(CodeHookCallback callback, ulong startAddress, ulong endAddress);
+    IUnicornHookRegistration AddBlockHook(CodeHookCallback callback, ulong startAddress, ulong endAddress);
 
-    UnicornHookRegistration AddInterruptHook(InterruptHookCallback callback);
+    IUnicornHookRegistration AddInterruptHook(InterruptHookCallback callback);
 
-    UnicornHookRegistration AddInvalidInstructionHook(InvalidInstructionHookCallback callback);
+    IUnicornHookRegistration AddInvalidInstructionHook(InvalidInstructionHookCallback callback);
 
-    UnicornHookRegistration AddMemoryHook(MemoryHookCallback callback, MemoryHookType hookType, ulong startAddress,
+    IUnicornHookRegistration AddMemoryHook(MemoryHookCallback callback, MemoryHookType hookType, ulong startAddress,
         ulong endAddress);
 
-    UnicornHookRegistration AddInvalidMemoryAccessHook(InvalidMemoryAccessCallback callback, MemoryHookType hookType,
+    IUnicornHookRegistration AddInvalidMemoryAccessHook(InvalidMemoryAccessCallback callback, MemoryHookType hookType,
         ulong startAddress,
         ulong endAddress);
 
-    void RemoveHook(UnicornHookRegistration registration);
+    void RemoveHook(IUnicornHookRegistration registration);
     void RemoveNativeHook(nuint hookId);
 
     void MemMap(ulong address, nuint size, MemoryPermissions permissions);

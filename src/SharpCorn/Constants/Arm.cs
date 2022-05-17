@@ -2,7 +2,7 @@
 
 using System.Runtime.InteropServices;
 
-namespace Code4Arm.Unicorn.Constants;
+namespace SharpCorn.Constants;
 
 public static class Arm
 {

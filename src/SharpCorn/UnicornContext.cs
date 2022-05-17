@@ -1,9 +1,9 @@
 // UnicornContext.cs
 // Author: Ondřej Ondryáš
 
-using Code4Arm.Unicorn.Abstractions;
+using SharpCorn.Abstractions;
 
-namespace Code4Arm.Unicorn;
+namespace SharpCorn;
 
 internal sealed class UnicornContext : IUnicornContext
 {

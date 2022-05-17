@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 // ReSharper disable InconsistentNaming
 // ReSharper disable CheckNamespace
 
-namespace Code4Arm.Unicorn.Callbacks.Native;
+namespace SharpCorn.Callbacks.Native;
 
 // typedef void (*uc_cb_hookcode_t)(uc_engine *uc, uint64_t address, uint32_t size, void *user_data);
 [UnmanagedFunctionPointer(CallingConvention.Cdecl)]

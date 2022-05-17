@@ -1,4 +1,4 @@
-﻿namespace Code4Arm.Unicorn.Constants;
+﻿namespace SharpCorn.Constants;
 
 public static class UniConst
 {

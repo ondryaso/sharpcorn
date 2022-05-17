@@ -1,13 +1,13 @@
-﻿using Code4Arm.Unicorn.Abstractions.Enums;
+﻿using SharpCorn.Abstractions.Enums;
 
-namespace Code4Arm.Unicorn;
+namespace SharpCorn.Abstractions;
 
 public class UnicornException : Exception
 {
     public int ErrorId { get; }
     public UnicornError Error { get; }
 
-    internal UnicornException(int errorId, string message)
+    public UnicornException(int errorId, string message)
         : base(message)
     {
         ErrorId = errorId;

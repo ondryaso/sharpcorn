@@ -1,17 +1,16 @@
 ﻿using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using Code4Arm.Unicorn.Abstractions;
-using Code4Arm.Unicorn.Abstractions.Enums;
-using Code4Arm.Unicorn.Callbacks;
-using Code4Arm.Unicorn.Callbacks.Native;
-using Code4Arm.Unicorn.Constants;
-using Architecture = Code4Arm.Unicorn.Abstractions.Enums.Architecture;
+using SharpCorn.Abstractions;
+using SharpCorn.Abstractions.Enums;
+using SharpCorn.Callbacks;
+using SharpCorn.Callbacks.Native;
+using SharpCorn.Constants;
 
 // ReSharper disable InconsistentNaming
 
-namespace Code4Arm.Unicorn;
+namespace SharpCorn;
 
-public class Unicorn : IUnicorn
+public sealed class Unicorn : IUnicorn
 {
     public const int ApiMajor = 2, ApiMinor = 0, ApiPatch = 0, ApiExtra = 7;
 
@@ -28,7 +27,7 @@ public class Unicorn : IUnicorn
     private bool _disposed;
     private UIntPtr _engine;
 
-    public unsafe Unicorn(Architecture architecture, EngineMode mode)
+    public unsafe Unicorn(Abstractions.Enums.Architecture architecture, EngineMode mode)
     {
         var ptr = new UIntPtr();
         var result = Native.uc_open((int)architecture, (int)mode, &ptr);
@@ -85,7 +84,8 @@ public class Unicorn : IUnicorn
         }
     }
 
-    public bool IsArchSupported(Architecture architecture) => Native.uc_arch_supported((int)architecture);
+    public bool IsArchSupported(Abstractions.Enums.Architecture architecture) =>
+        Native.uc_arch_supported((int)architecture);
 
     public unsafe ulong Query(QueryType type)
     {
@@ -738,7 +738,7 @@ public class Unicorn : IUnicorn
         return hookId;
     }
 
-    public UnicornHookRegistration AddCodeHook(CodeHookCallback callback, ulong startAddress, ulong endAddress)
+    public IUnicornHookRegistration AddCodeHook(CodeHookCallback callback, ulong startAddress, ulong endAddress)
     {
         _codeHookNativeDelegate ??= this.CodeHookHandler;
 
@@ -746,7 +746,7 @@ public class Unicorn : IUnicorn
             callback, startAddress, endAddress);
     }
 
-    public UnicornHookRegistration AddBlockHook(CodeHookCallback callback, ulong startAddress, ulong endAddress)
+    public IUnicornHookRegistration AddBlockHook(CodeHookCallback callback, ulong startAddress, ulong endAddress)
     {
         _codeHookNativeDelegate ??= this.CodeHookHandler;
 
@@ -754,7 +754,7 @@ public class Unicorn : IUnicorn
             callback, startAddress, endAddress);
     }
 
-    public UnicornHookRegistration AddInterruptHook(InterruptHookCallback callback)
+    public IUnicornHookRegistration AddInterruptHook(InterruptHookCallback callback)
     {
         _interruptNativeDelegate ??= this.InterruptHookHandler;
 
@@ -764,7 +764,7 @@ public class Unicorn : IUnicorn
             callback, 1, 0);
     }
 
-    public UnicornHookRegistration AddInvalidInstructionHook(InvalidInstructionHookCallback callback)
+    public IUnicornHookRegistration AddInvalidInstructionHook(InvalidInstructionHookCallback callback)
     {
         _invalidInstructionNativeDelegate ??= this.InvalidInstructionHookHandler;
 
@@ -774,7 +774,7 @@ public class Unicorn : IUnicorn
             callback, 1, 0);
     }
 
-    public UnicornHookRegistration AddMemoryHook(MemoryHookCallback callback, MemoryHookType hookType,
+    public IUnicornHookRegistration AddMemoryHook(MemoryHookCallback callback, MemoryHookType hookType,
         ulong startAddress, ulong endAddress)
     {
         _memoryNativeDelegate = this.MemoryHookHandler;
@@ -782,7 +782,7 @@ public class Unicorn : IUnicorn
         return this.AddHook((int)hookType, _memoryNativeDelegate, callback, startAddress, endAddress);
     }
 
-    public UnicornHookRegistration AddInvalidMemoryAccessHook(InvalidMemoryAccessCallback callback,
+    public IUnicornHookRegistration AddInvalidMemoryAccessHook(InvalidMemoryAccessCallback callback,
         MemoryHookType hookType, ulong startAddress, ulong endAddress)
     {
         _invalidAccessNativeDelegate = this.InvalidMemoryAccessHookHandler;
@@ -794,15 +794,16 @@ public class Unicorn : IUnicorn
 
     #region Hook removing
 
-    public void RemoveHook(UnicornHookRegistration registration)
+    public void RemoveHook(IUnicornHookRegistration registration)
     {
-        if (!_managedHooks.Remove(registration.ManagedHookId, out var reg) || reg != registration)
+        if (registration is not UnicornHookRegistration registrationInternal ||
+            !_managedHooks.Remove(registrationInternal.ManagedHookId, out var reg) || reg != registrationInternal)
             throw new ArgumentException(
                 "The given registration was not made using this Unicorn instance or the hook has already been removed.",
                 nameof(registration));
 
         this.EnsureEngine();
-        var result = Native.uc_hook_del(_engine, registration.NativeHookId);
+        var result = Native.uc_hook_del(_engine, registrationInternal.NativeHookId);
         this.CheckResult(result);
     }
 
@@ -976,7 +977,7 @@ public class Unicorn : IUnicorn
         GC.SuppressFinalize(this);
     }
 
-    protected virtual void Dispose(bool disposing)
+    private void Dispose(bool disposing)
     {
         if (_disposed)
             return;
@@ -996,8 +997,6 @@ public class Unicorn : IUnicorn
 
         if (_engine != UIntPtr.Zero)
         {
-            // TODO: Remove allocated memory for hooks etc.
-
             _ = Native.uc_close(_engine);
             _engine = UIntPtr.Zero;
             // Best effort: If closing failed, we can't really do anything about it

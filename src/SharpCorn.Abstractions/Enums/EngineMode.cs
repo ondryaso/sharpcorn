@@ -1,4 +1,4 @@
-﻿namespace Code4Arm.Unicorn.Abstractions.Enums;
+﻿namespace SharpCorn.Abstractions.Enums;
 
 // uc_mode
 [Flags]
