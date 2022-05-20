@@ -4,9 +4,10 @@
 using System.Buffers;
 using System.Runtime.InteropServices;
 using System.Text;
+using SharpCorn.Abstractions;
 using SharpCorn.Abstractions.Enums;
 
-namespace SharpCorn.Abstractions.Extensions;
+namespace SharpCorn.Extensions;
 
 public static class UnicornExtensions
 {

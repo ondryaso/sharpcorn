@@ -3,7 +3,7 @@
 
 using SharpCorn.Abstractions.Enums;
 
-namespace SharpCorn.Abstractions.Extensions;
+namespace SharpCorn.Extensions;
 
 public static class UnicornErrorExtensions
 {
