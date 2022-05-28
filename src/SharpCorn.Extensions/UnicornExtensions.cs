@@ -49,7 +49,7 @@ public static class UnicornExtensions
             if (currentAddress >= maxAddress)
                 throw new OverflowException("No null terminator found before reaching the maximum address.");
 
-            var toRead = (int) Math.Min(bufferLength, maxAddress - currentAddress);
+            var toRead = (int)Math.Min(bufferLength, maxAddress - currentAddress);
             unicorn.MemRead(currentAddress, buffer, (nuint)toRead);
 
             for (var i = 0; i < toRead; i++)
@@ -63,7 +63,7 @@ public static class UnicornExtensions
                 }
             }
         }
-        
+
         if (size < bufferLength)
             return encoding.GetString(buffer[..size]);
 
@@ -193,7 +193,7 @@ public static class UnicornExtensions
 
         if (localLe == unicornLe || size == 1)
         {
-            MemWriteDirect(unicorn, address, value);
+            MemWriteDirect(unicorn, address, value, targetSize);
 
             return;
         }
