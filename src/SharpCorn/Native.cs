@@ -6,7 +6,7 @@ namespace SharpCorn;
 
 internal static class Native
 {
-    private const string LibName = "/home/ondryaso/Projects/bp/unicorn/build/libunicorn.so.2";
+    private const string LibName = "unicorn";
 
     [DllImport(LibName, CallingConvention = CallingConvention.Cdecl)]
     public static extern unsafe int uc_version(uint* major, uint* minor);

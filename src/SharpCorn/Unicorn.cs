@@ -688,15 +688,13 @@ public sealed class Unicorn : IUnicorn
 
         this.CheckResult(result);
 
-        var registration = new UnicornHookRegistration()
+        var registration = new UnicornHookRegistration(this, managedCallback)
         {
-            Callback = managedCallback,
             StartAddress = startAddress,
             EndAddress = endAddress,
             HookType = type,
             NativeHookId = hookId,
-            ManagedHookId = nextId,
-            Unicorn = this
+            ManagedHookId = nextId
         };
 
         _managedHooks.Add(nextId, registration);
@@ -870,15 +868,13 @@ public sealed class Unicorn : IUnicorn
 
         if (readCallback != null)
         {
-            _managedHooks.Add(readId, new UnicornHookRegistration()
+            _managedHooks.Add(readId, new UnicornHookRegistration(this, readCallback)
             {
-                Callback = readCallback,
                 StartAddress = address,
                 EndAddress = address + size,
                 NativeHookId = 0,
                 ManagedHookId = readId,
-                HookType = -1,
-                Unicorn = this
+                HookType = -1
             });
 
             userDataRead = new IntPtr(readId);
@@ -886,15 +882,13 @@ public sealed class Unicorn : IUnicorn
 
         if (writeCallback != null)
         {
-            _managedHooks.Add(writeId, new UnicornHookRegistration()
+            _managedHooks.Add(writeId, new UnicornHookRegistration(this, writeCallback)
             {
-                Callback = writeCallback,
                 StartAddress = address,
                 EndAddress = address + size,
                 NativeHookId = 0,
                 ManagedHookId = writeId,
-                HookType = -1,
-                Unicorn = this
+                HookType = -1
             });
 
             userDataWrite = new IntPtr(writeId);

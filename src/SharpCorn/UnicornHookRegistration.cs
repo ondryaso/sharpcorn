@@ -5,23 +5,29 @@ using SharpCorn.Abstractions;
 
 namespace SharpCorn;
 
-public readonly struct UnicornHookRegistration : IUnicornHookRegistration, IEquatable<UnicornHookRegistration>
+public class UnicornHookRegistration : IUnicornHookRegistration, IEquatable<UnicornHookRegistration>
 {
     internal nuint NativeHookId { get; init; }
     internal int ManagedHookId { get; init; }
-    public IUnicorn Unicorn { get; internal init; }
-    public Delegate Callback { get; internal init; }
+    public IUnicorn Unicorn { get; }
+    public Delegate Callback { get; }
     public ulong StartAddress { get; internal init; }
     public ulong EndAddress { get; internal init; }
     public int HookType { get; internal init; }
+
+    internal UnicornHookRegistration(IUnicorn unicorn, Delegate callback)
+    {
+        Unicorn = unicorn;
+        Callback = callback;
+    }
 
     public void RemoveHook()
     {
         Unicorn.RemoveHook(this);
     }
 
-    public bool Equals(UnicornHookRegistration other) =>
-        ReferenceEquals(Unicorn, other.Unicorn)
+    public bool Equals(UnicornHookRegistration? other) =>
+        ReferenceEquals(Unicorn, other?.Unicorn)
         && NativeHookId.Equals(other.NativeHookId)
         && ManagedHookId == other.ManagedHookId;
 
