@@ -11,5 +11,5 @@ trim_trailing_whitespace = true
 # IDE0003: Remove qualification
 dotnet_style_qualification_for_event = true
 dotnet_style_qualification_for_method = true
-dotnet_style_qualification_for_property = true
+dotnet_style_qualification_for_property = false
 dotnet_style_qualification_for_field = false
