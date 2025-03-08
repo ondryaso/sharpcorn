@@ -1,10 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
+# 
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SharpCorn", "SharpCorn\SharpCorn.csproj", "{8892001C-2B2E-457D-9DF6-A9DB9A4B87D6}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test", "Test\Test.csproj", "{2DA28CB3-AEA1-467B-9C70-14A3E7E8E6A2}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SharpCorn.Analyzers.Arm", "SharpCorn.Analyzers.Arm\SharpCorn.Analyzers.Arm.csproj", "{5656348A-04EA-4841-9E09-A473B312B274}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SharpCorn.Abstractions", "SharpCorn.Abstractions\SharpCorn.Abstractions.csproj", "{44821EE8-01F3-488F-9D95-1AF44C2DF269}"
 EndProject
@@ -24,10 +23,6 @@ Global
 		{2DA28CB3-AEA1-467B-9C70-14A3E7E8E6A2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2DA28CB3-AEA1-467B-9C70-14A3E7E8E6A2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2DA28CB3-AEA1-467B-9C70-14A3E7E8E6A2}.Release|Any CPU.Build.0 = Release|Any CPU
-		{5656348A-04EA-4841-9E09-A473B312B274}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{5656348A-04EA-4841-9E09-A473B312B274}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{5656348A-04EA-4841-9E09-A473B312B274}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{5656348A-04EA-4841-9E09-A473B312B274}.Release|Any CPU.Build.0 = Release|Any CPU
 		{44821EE8-01F3-488F-9D95-1AF44C2DF269}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{44821EE8-01F3-488F-9D95-1AF44C2DF269}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{44821EE8-01F3-488F-9D95-1AF44C2DF269}.Release|Any CPU.ActiveCfg = Release|Any CPU

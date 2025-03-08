@@ -10,17 +10,10 @@
   <ItemGroup>
     <ProjectReference Include="..\SharpCorn\SharpCorn.csproj" />
   </ItemGroup>
-<!--
-  <ItemGroup>
-    <ProjectReference Include="..\Analyzers.Implementation\Analyzers.CSharp.csproj"
-                      PrivateAssets="all"
-                      ReferenceOutputAssembly="false"
-                      OutputItemType="Analyzer" />
-  </ItemGroup>
--->
-  
+
+  <!--
   <ItemGroup>
     <ProjectReference Include="..\SharpCorn.Analyzers.Arm\SharpCorn.Analyzers.Arm.csproj" PrivateAssets="all" ReferenceOutputAssembly="false" OutputItemType="Analyzer" />
   </ItemGroup>
-
+  -->
 </Project>
