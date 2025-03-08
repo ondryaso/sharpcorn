@@ -33,7 +33,7 @@ public sealed class Unicorn : IUnicorn
         var result = Native.uc_open((int)architecture, (int)mode, &ptr);
         if (result != UniConst.Err.Ok)
             _disposed = true;
-                
+
         this.CheckResult(result);
         _engine = ptr;
     }
@@ -609,57 +609,73 @@ public sealed class Unicorn : IUnicorn
     private void CodeHookHandler(UIntPtr engine, ulong address, uint size, IntPtr userData)
     {
         var targetId = userData.ToInt32();
-        var target = _managedHooks[targetId].Callback as CodeHookCallback;
-        target?.Invoke(this, address, size);
+
+        if (_managedHooks[targetId].Callback is not CodeHookCallback target)
+            throw new InvalidOperationException("Managed code hook callback not found.");
+
+        target.Invoke(this, address, size);
     }
 
     private void InterruptHookHandler(UIntPtr engine, uint interruptNumber, IntPtr userData)
     {
         var targetId = userData.ToInt32();
-        var target = _managedHooks[targetId].Callback as InterruptHookCallback;
-        target?.Invoke(this, interruptNumber);
+
+        if (_managedHooks[targetId].Callback is not InterruptHookCallback target)
+            throw new InvalidOperationException("Managed interrupt hook callback not found.");
+
+        target.Invoke(this, interruptNumber);
     }
 
     private bool InvalidInstructionHookHandler(UIntPtr engine, IntPtr userData)
     {
         var targetId = userData.ToInt32();
-        var target = _managedHooks[targetId].Callback as InvalidInstructionHookCallback;
 
-        return target?.Invoke(this) ??
-            throw new InvalidOperationException("Invalid instruction hook callback not found.");
+        if (_managedHooks[targetId].Callback is not InvalidInstructionHookCallback target)
+            throw new InvalidOperationException("Managed invalid instruction hook callback not found.");
+
+        return target.Invoke(this);
     }
 
     private void MemoryHookHandler(UIntPtr engine, int type, ulong address, int size, long value,
         IntPtr userData)
     {
         var targetId = userData.ToInt32();
-        var target = _managedHooks[targetId].Callback as MemoryHookCallback;
-        target?.Invoke(this, (MemoryAccessType)type, address, size, value);
+
+        if (_managedHooks[targetId].Callback is not MemoryHookCallback target)
+            throw new InvalidOperationException("Managed invalid instruction hook callback not found.");
+
+        target.Invoke(this, (MemoryAccessType)type, address, size, value);
     }
 
     private bool InvalidMemoryAccessHookHandler(UIntPtr engine, int type, ulong address, int size, long value,
         IntPtr userData)
     {
         var targetId = userData.ToInt32();
-        var target = _managedHooks[targetId].Callback as InvalidMemoryAccessCallback;
 
-        return target?.Invoke(this, (MemoryAccessType)type, address, size, value) ??
-            throw new InvalidOperationException("Invalid memory access hook callback not found.");
+        if (_managedHooks[targetId].Callback is not InvalidMemoryAccessCallback target)
+            throw new InvalidOperationException("Managed invalid memory access hook callback not found.");
+
+        return target.Invoke(this, (MemoryAccessType)type, address, size, value);
     }
 
     private ulong MMIOReadHandler(UIntPtr engine, ulong offset, uint size, IntPtr userData)
     {
         var targetId = userData.ToInt32();
-        var target = _managedHooks[targetId].Callback as MMIOReadCallback;
 
-        return target?.Invoke(this, offset, size) ?? throw new InvalidOperationException();
+        if (_managedHooks[targetId].Callback is not MMIOReadCallback target)
+            throw new InvalidOperationException("Managed MMIO read hook callback not found.");
+
+        return target.Invoke(this, offset, size);
     }
 
     private void MMIOWriteHandler(UIntPtr engine, ulong offset, uint size, ulong value, IntPtr userData)
     {
         var targetId = userData.ToInt32();
-        var target = _managedHooks[targetId].Callback as MMIOWriteCallback;
-        target?.Invoke(this, offset, size, value);
+
+        if (_managedHooks[targetId].Callback is not MMIOWriteCallback target)
+            throw new InvalidOperationException("Managed MMIO write hook callback not found.");
+
+        target.Invoke(this, offset, size, value);
     }
 
     #endregion
@@ -797,8 +813,12 @@ public sealed class Unicorn : IUnicorn
 
     public void RemoveHook(IUnicornHookRegistration registration)
     {
-        if (registration is not UnicornHookRegistration registrationInternal ||
-            !_managedHooks.Remove(registrationInternal.ManagedHookId, out var reg) || reg != registrationInternal)
+        if (registration is not UnicornHookRegistration registrationInternal)
+            throw new ArgumentException(
+                "The given registration was not made using this Unicorn implementation.",
+                nameof(registration));
+
+        if (!_managedHooks.Remove(registrationInternal.ManagedHookId, out var reg) || reg != registrationInternal)
             throw new ArgumentException(
                 "The given registration was not made using this Unicorn instance or the hook has already been removed.",
                 nameof(registration));
