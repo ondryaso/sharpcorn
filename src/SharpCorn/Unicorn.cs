@@ -22,7 +22,12 @@ public sealed class Unicorn : IUnicorn
     private readonly Dictionary<nuint, Delegate?> _customNativeHooks = new();
 
     private int _nextAddedManagedHookId;
+
+#if NET9_0_OR_GREATER
+    private readonly Lock HookAddingLocker = new();
+#else
     private readonly object HookAddingLocker = new();
+#endif
 
     private bool _disposed;
     private UIntPtr _engine;
