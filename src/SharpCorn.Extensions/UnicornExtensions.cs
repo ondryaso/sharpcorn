@@ -199,7 +199,7 @@ public static class UnicornExtensions
         }
 
         Span<byte> bytes = stackalloc byte[size];
-        MemoryMarshal.Write(bytes, ref value);
+        MemoryMarshal.Write(bytes, in value);
 
         bytes.Reverse();
         unicorn.MemWrite(address, bytes, targetSize);
