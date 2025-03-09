@@ -95,18 +95,18 @@ public class Program
             { 0x1e, 0xff, 0x2f, 0xe1, 0x1e, 0xff, 0x2f, 0xe1, 0x1e, 0xff, 0x2f, 0xe1, 0x1e, 0xff, 0x2f, 0xe1 };
         uni.MemWrite(0xff000000, tramp, 12);
 
-        uni.AddNativeHook(
+        uni.AddUnmanagedHook(
             new CodeHookNativeCallback(((engine, address, size, userData) =>
                 Console.WriteLine($"CODE at {address:x}"))),
             UniConst.Hook.Code, 0x10000, 0x20000, 0);
 
-        uni.AddNativeHook(new InterruptHookNativeCallback(((engine, number, userData) =>
+        uni.AddUnmanagedHook(new InterruptHookNativeCallback(((engine, number, userData) =>
             {
                 Console.WriteLine("INTERRUPT");
                 uni.EmuStop();
             })),
             UniConst.Hook.Intr, 0x10000, 0x20000, 0);
-        uni.AddNativeHook(
+        uni.AddUnmanagedHook(
             new InvalidMemoryAccessNativeCallback((engine, type, address, size, value, userData) =>
             {
                 Console.WriteLine("INVALID MEMORY");

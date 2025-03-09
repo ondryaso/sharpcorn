@@ -89,8 +89,8 @@ public interface IUnicorn : IUnicornContext
     /// <param name="userData">User data to be passed to the callback. This is an opaque, pointer-sized value.</param>
     /// <returns>Unicorn's hook handle (to be used in <see cref="RemoveNativeHook(nuint)"/>).</returns>
     /// <exception cref="UnicornException">The hook could not be added. Refer to the error code for more details.</exception>
-    /// <seealso cref="AddNativeHook(Delegate, int, ulong, ulong, nuint)"/>
-    nuint AddNativeHook(IntPtr callbackPointer, int type, ulong startAddress, ulong endAddress, nuint userData = 0);
+    /// <seealso cref="AddUnmanagedHook(Delegate, int, ulong, ulong, nuint)"/>
+    nuint AddUnmanagedHook(IntPtr callbackPointer, int type, ulong startAddress, ulong endAddress, nuint userData = 0);
 
     /// <summary>
     /// Adds an unmanaged Unicorn hook using a method delegate as a callback function. Corresponds to uc_hook_add.
@@ -111,7 +111,7 @@ public interface IUnicorn : IUnicornContext
     /// <param name="userData">User data to be passed to the callback. This is an opaque, pointer-sized value.</param>
     /// <returns>Unicorn's hook handle (to be used in <see cref="RemoveNativeHook(nuint)"/>).</returns>
     /// <exception cref="UnicornException">The hook could not be added. Refer to the error code for more details.</exception>
-    nuint AddNativeHook(Delegate callback, int type, ulong startAddress, ulong endAddress, nuint userData = 0);
+    nuint AddUnmanagedHook(Delegate callback, int type, ulong startAddress, ulong endAddress, nuint userData = 0);
 
     IUnicornHookRegistration AddCodeHook(CodeHookCallback callback, ulong startAddress, ulong endAddress);
 
@@ -174,7 +174,7 @@ public interface IUnicorn : IUnicornContext
     /// This method should be used with caution. The caller must ensure that the provided delegates
     /// match the expected signature of the callback.
     /// The caller must ensure that the delegates are not garbage collected or relocated while the hook is active.
-    /// This is <b>not</b> done by SharpCorn (unlike in <see cref="AddNativeHook(Delegate, int, ulong, ulong, nuint)"/>).
+    /// This is <b>not</b> done by SharpCorn (unlike in <see cref="AddUnmanagedHook(Delegate, int, ulong, ulong, nuint)"/>).
     /// <para/>
     /// See the Unicorn API documentation for more information on the callback signatures.
     /// </remarks>

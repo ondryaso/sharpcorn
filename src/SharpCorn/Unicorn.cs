@@ -734,7 +734,7 @@ public sealed class Unicorn : IUnicorn
         return registration;
     }
 
-    public unsafe nuint AddNativeHook(IntPtr callbackPointer, int type, ulong startAddress, ulong endAddress,
+    public unsafe nuint AddUnmanagedHook(IntPtr callbackPointer, int type, ulong startAddress, ulong endAddress,
         nuint userData = 0)
     {
         this.EnsureEngine();
@@ -750,7 +750,7 @@ public sealed class Unicorn : IUnicorn
         return hookId;
     }
 
-    public unsafe nuint AddNativeHook(Delegate callback, int type, ulong startAddress, ulong endAddress,
+    public unsafe nuint AddUnmanagedHook(Delegate callback, int type, ulong startAddress, ulong endAddress,
         nuint userData = 0)
     {
         this.EnsureEngine();
