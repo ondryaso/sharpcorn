@@ -62,15 +62,15 @@ internal static class Native
 
     [DllImport(LibName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "uc_hook_add")]
     public static extern unsafe int uc_hook_add(UIntPtr eng, nuint* hookId, int callbackType, IntPtr callback,
-        IntPtr userData, ulong beginAddress, ulong endAddress);
+        nuint userData, ulong beginAddress, ulong endAddress);
 
     [DllImport(LibName, CallingConvention = CallingConvention.Cdecl)]
     public static extern unsafe int uc_hook_add(UIntPtr eng, nuint* hookId, int callbackType, IntPtr callback,
-        IntPtr userData, ulong beginAddress, ulong endAddress, int arg0);
+        nuint userData, ulong beginAddress, ulong endAddress, int arg0);
 
     [DllImport(LibName, CallingConvention = CallingConvention.Cdecl)]
     public static extern unsafe int uc_hook_add(UIntPtr eng, nuint* hookId, int callbackType, IntPtr callback,
-        IntPtr userData, ulong beginAddress, ulong endAddress, ulong arg0, ulong arg1);
+        nuint userData, ulong beginAddress, ulong endAddress, ulong arg0, ulong arg1);
 
     [DllImport(LibName, CallingConvention = CallingConvention.Cdecl)]
     public static extern int uc_hook_del(UIntPtr eng, nuint hookId);
@@ -83,7 +83,7 @@ internal static class Native
 
     [DllImport(LibName, CallingConvention = CallingConvention.Cdecl)]
     public static extern int uc_mmio_map(UIntPtr eng, ulong address, nuint size, IntPtr readCallback,
-        IntPtr userDataRead, IntPtr writeCallback, IntPtr userDataWrite);
+        nuint userDataRead, IntPtr writeCallback, nuint userDataWrite);
 
     [DllImport(LibName, CallingConvention = CallingConvention.Cdecl)]
     public static extern int uc_mem_unmap(UIntPtr eng, ulong address, nuint size);
@@ -96,7 +96,7 @@ internal static class Native
     [DllImport(LibName, CallingConvention = CallingConvention.Cdecl)]
     public static extern unsafe int uc_context_alloc(UIntPtr eng, UIntPtr* contextTarget);
 
-    // Missing: uc_free    
+    // Missing: uc_free
 
     [DllImport(LibName, CallingConvention = CallingConvention.Cdecl)]
     public static extern int uc_context_save(UIntPtr uc, UIntPtr context);
@@ -144,7 +144,7 @@ internal static class Native
 
     [DllImport(LibName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "uc_ctl")]
     public static extern unsafe int uc_ctl(UIntPtr eng, int control, ulong* arg0, nuint arg1);
-    
+
     [DllImport(LibName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "uc_ctl")]
     public static extern int uc_ctl(UIntPtr eng, int control, ulong arg0, ulong arg1);
 

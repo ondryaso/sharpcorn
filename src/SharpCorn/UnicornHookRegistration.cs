@@ -8,7 +8,7 @@ namespace SharpCorn;
 public class UnicornHookRegistration : IUnicornHookRegistration, IEquatable<UnicornHookRegistration>
 {
     internal nuint NativeHookId { get; init; }
-    internal int ManagedHookId { get; init; }
+    internal nuint ManagedHookId { get; init; }
     public IUnicorn Unicorn { get; }
     public Delegate Callback { get; }
     public ulong StartAddress { get; internal init; }
