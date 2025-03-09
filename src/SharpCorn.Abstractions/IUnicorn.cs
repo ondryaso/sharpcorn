@@ -1,4 +1,4 @@
-﻿using SharpCorn.Abstractions.Enums;
+using SharpCorn.Abstractions.Enums;
 using SharpCorn.Callbacks;
 
 // ReSharper disable InconsistentNaming
@@ -72,8 +72,46 @@ public interface IUnicorn : IUnicornContext
 
     void EmuStop();
 
-    nuint AddNativeHook(IntPtr callbackPointer, int type, ulong startAddress, ulong endAddress, nint userData = 0);
-    nuint AddNativeHook(Delegate callback, int type, ulong startAddress, ulong endAddress, nint userData = 0);
+    /// <summary>
+    /// Adds an unmanaged Unicorn hook using a pointer to a callback function. Corresponds to uc_hook_add.
+    /// </summary>
+    /// <remarks>
+    /// This method is unsafe and should be used with caution. The caller must ensure that <paramref name="callbackPointer"/>
+    /// is a valid pointer to a function that matches the signature of the callback, and that it is not garbage collected or
+    /// relocated while the hook is active. The caller must manually clean up the hook using <see cref="RemoveNativeHook(nuint)"/>.
+    /// <para/>
+    /// See the Unicorn API documentation for more information on the hook types and callback signatures.
+    /// </remarks>
+    /// <param name="callbackPointer">The pointer to the callback function, passed as-is to uc_hook_add.</param>
+    /// <param name="type">The type of the hook constant according to the Unicorn API (see the uc_hook_type enum).</param>
+    /// <param name="startAddress">The start address for the hook.</param>
+    /// <param name="endAddress">The end address for the hook.</param>
+    /// <param name="userData">User data to be passed to the callback. This is an opaque, pointer-sized value.</param>
+    /// <returns>Unicorn's hook handle (to be used in <see cref="RemoveNativeHook(nuint)"/>).</returns>
+    /// <exception cref="UnicornException">The hook could not be added. Refer to the error code for more details.</exception>
+    /// <seealso cref="AddNativeHook(Delegate, int, ulong, ulong, nuint)"/>
+    nuint AddNativeHook(IntPtr callbackPointer, int type, ulong startAddress, ulong endAddress, nuint userData = 0);
+
+    /// <summary>
+    /// Adds an unmanaged Unicorn hook using a method delegate as a callback function. Corresponds to uc_hook_add.
+    /// Uses <see cref="System.Runtime.InteropServices.Marshal.GetFunctionPointerForDelegate{TDelegate}(TDelegate)"/>
+    /// to create an unmanaged thunk for the managed delegate.
+    /// </summary>
+    /// <remarks>
+    /// The caller must ensure that <paramref name="callback"/> is a method that matches the signature of the native callback.
+    /// The caller must manually clean up the hook using <see cref="RemoveNativeHook(nuint)"/>.
+    /// We will ensure that the delegate is not garbage collected while the hook is active.
+    /// <para/>
+    /// See the Unicorn API documentation for more information on the hook types and callback signatures.
+    /// </remarks>
+    /// <param name="callback">The callback function delegate.</param>
+    /// <param name="type">The type of the hook constant according to the Unicorn API (see the uc_hook_type enum).</param>
+    /// <param name="startAddress">The start address for the hook.</param>
+    /// <param name="endAddress">The end address for the hook.</param>
+    /// <param name="userData">User data to be passed to the callback. This is an opaque, pointer-sized value.</param>
+    /// <returns>Unicorn's hook handle (to be used in <see cref="RemoveNativeHook(nuint)"/>).</returns>
+    /// <exception cref="UnicornException">The hook could not be added. Refer to the error code for more details.</exception>
+    nuint AddNativeHook(Delegate callback, int type, ulong startAddress, ulong endAddress, nuint userData = 0);
 
     IUnicornHookRegistration AddCodeHook(CodeHookCallback callback, ulong startAddress, ulong endAddress);
 
