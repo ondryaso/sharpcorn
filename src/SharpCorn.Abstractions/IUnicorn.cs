@@ -1,4 +1,4 @@
-using SharpCorn.Abstractions.Enums;
+﻿using SharpCorn.Abstractions.Enums;
 using SharpCorn.Callbacks;
 
 // ReSharper disable InconsistentNaming
@@ -38,7 +38,7 @@ public interface IUnicorn : IUnicornContext
 
     // uc_ctl, UC_CTL_CPU_MODEL, read/write
     int CpuModel { get; set; }
-    
+
     // uc_arch_supported
     bool IsArchSupported(Architecture architecture);
 
@@ -48,8 +48,8 @@ public interface IUnicorn : IUnicornContext
     // uc_ctl, UC_CTL_UC_USE_EXITS, write
     void EnableMultipleExits();
 
-    // Missing: uc_ctl, UC_CTL_TB_REQUEST_CACHE, read 
-    
+    // Missing: uc_ctl, UC_CTL_TB_REQUEST_CACHE, read
+
     // uc_ctl, UC_CTL_TB_REMOVE_CACHE, write
     void RemoveTbCache(ulong begin, ulong end);
 
@@ -134,6 +134,62 @@ public interface IUnicorn : IUnicornContext
     void MemMap(ulong address, nuint size, MemoryPermissions permissions);
     void MemMap(ulong address, nuint size, MemoryPermissions permissions, IntPtr memoryPointer);
     void MemMap(ulong address, nuint size, MMIOReadCallback? readCallback, MMIOWriteCallback? writeCallback);
+
+    /// <summary>
+    /// Adds a MMIO region that invokes the provided callbacks when read from or written to.
+    /// The callbacks are specified as pointers to functions.
+    /// The memory permissions will be determined by the presence of the read and write callbacks.
+    /// Corresponds to uc_mmio_map.
+    /// </summary>
+    /// <remarks>
+    /// This method is unsafe and should be used with caution. The caller must ensure that the provided pointers
+    /// refer to functions that match the expected signature of the callback.
+    /// <b>The caller must ensure</b> that the callbacks are not garbage collected or relocated while the hook is active.
+    /// <para/>
+    /// See the Unicorn API documentation for more information on the callback signatures.
+    /// </remarks>
+    /// <param name="address">The starting address of the new MMIO region.</param>
+    /// <param name="size">The size of the MMIO region.</param>
+    /// <param name="readCallbackPointer">The pointer to the function that will handle reads from the MMIO region,
+    ///     or 0 to mark the region as unreadable.</param>
+    /// <param name="writeCallbackPointer">The pointer to the function that will handle writes to the MMIO region,
+    ///     or 0 to mark the region as unwritable.</param>
+    /// <param name="readCallbackUserData">User data to be passed to the read callback. This is an opaque, pointer-sized value.</param>
+    /// <param name="writeCallbackUserData">User data to be passed to the write callback. This is an opaque, pointer-sized value.</param>
+    /// <exception cref="UnicornException">The memory could not be mapped. Refer to the error code for more details.</exception>
+    /// <seealso cref="MemMapUnmanaged(ulong, nuint, Delegate?, Delegate?, nuint, nuint)"/>
+    /// <seealso cref="MemMap(ulong, nuint, MMIOReadCallback?, MMIOWriteCallback?)"/>
+    void MemMapUnmanaged(ulong address, nuint size, IntPtr readCallbackPointer, IntPtr writeCallbackPointer,
+        nuint readCallbackUserData = 0, nuint writeCallbackUserData = 0);
+
+    /// <summary>
+    /// Adds a MMIO region that invokes the provided callbacks when read from or written to.
+    /// The callbacks are specified as method delegates. The method uses <see
+    /// cref="System.Runtime.InteropServices.Marshal.GetFunctionPointerForDelegate{TDelegate}(TDelegate)"/>
+    /// to create an unmanaged thunk for the managed delegate.
+    /// The memory permissions will be determined by the presence of the read and write callbacks.
+    /// Corresponds to uc_mmio_map.
+    /// </summary>
+    /// <remarks>
+    /// This method should be used with caution. The caller must ensure that the provided delegates
+    /// match the expected signature of the callback.
+    /// The caller must ensure that the delegates are not garbage collected or relocated while the hook is active.
+    /// This is <b>not</b> done by SharpCorn (unlike in <see cref="AddNativeHook(Delegate, int, ulong, ulong, nuint)"/>).
+    /// <para/>
+    /// See the Unicorn API documentation for more information on the callback signatures.
+    /// </remarks>
+    /// <param name="address">The starting address of the new MMIO region.</param>
+    /// <param name="size">The size of the MMIO region.</param>
+    /// <param name="readCallback">The delegate for a method function that will handle reads from the MMIO region,
+    ///     or <see langword="null"/> to mark the region as unreadable.</param>
+    /// <param name="writeCallback">The delegate for a method that will handle writes to the MMIO region,
+    ///     or <see langword="null"/> to mark the region as unwritable.</param>
+    /// <param name="readCallbackUserData">User data to be passed to the read callback. This is an opaque, pointer-sized value.</param>
+    /// <param name="writeCallbackUserData">User data to be passed to the write callback. This is an opaque, pointer-sized value.</param>
+    /// <exception cref="UnicornException">The memory could not be mapped. Refer to the error code for more details.</exception>
+    /// <seealso cref="MemMap(ulong, nuint, MMIOReadCallback?, MMIOWriteCallback?)"/>
+    void MemMapUnmanaged(ulong address, nuint size, Delegate? readCallback, Delegate? writeCallback,
+        nuint readCallbackUserData = 0, nuint writeCallbackUserData = 0);
 
     void MemUnmap(ulong address, nuint size);
 

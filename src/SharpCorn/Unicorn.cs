@@ -1,4 +1,4 @@
-using System.Runtime.CompilerServices;
+﻿using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using SharpCorn.Abstractions;
 using SharpCorn.Abstractions.Enums;
@@ -615,7 +615,7 @@ public sealed class Unicorn : IUnicorn
 
     private void CodeHookHandler(UIntPtr engine, ulong address, uint size, nuint userData)
     {
-                if (!_managedHooks.TryGetValue(userData, out var registration) ||
+        if (!_managedHooks.TryGetValue(userData, out var registration) ||
                 registration.Callback is not CodeHookCallback target)
             throw new InvalidOperationException("Managed code hook callback not found.");
 
@@ -624,7 +624,7 @@ public sealed class Unicorn : IUnicorn
 
     private void InterruptHookHandler(UIntPtr engine, uint interruptNumber, nuint userData)
     {
-                if (!_managedHooks.TryGetValue(userData, out var registration) ||
+        if (!_managedHooks.TryGetValue(userData, out var registration) ||
                 registration.Callback is not InterruptHookCallback target)
             throw new InvalidOperationException("Managed interrupt hook callback not found.");
 
@@ -633,7 +633,7 @@ public sealed class Unicorn : IUnicorn
 
     private bool InvalidInstructionHookHandler(UIntPtr engine, nuint userData)
     {
-                if (!_managedHooks.TryGetValue(userData, out var registration) ||
+        if (!_managedHooks.TryGetValue(userData, out var registration) ||
                 registration.Callback is not InvalidInstructionHookCallback target)
             throw new InvalidOperationException("Managed invalid instruction hook callback not found.");
 
@@ -643,7 +643,7 @@ public sealed class Unicorn : IUnicorn
     private void MemoryHookHandler(UIntPtr engine, int type, ulong address, int size, long value,
         nuint userData)
     {
-                if (!_managedHooks.TryGetValue(userData, out var registration) ||
+        if (!_managedHooks.TryGetValue(userData, out var registration) ||
                 registration.Callback is not MemoryHookCallback target)
             throw new InvalidOperationException("Managed invalid instruction hook callback not found.");
 
@@ -653,7 +653,7 @@ public sealed class Unicorn : IUnicorn
     private bool InvalidMemoryAccessHookHandler(UIntPtr engine, int type, ulong address, int size, long value,
         nuint userData)
     {
-                if (!_managedHooks.TryGetValue(userData, out var registration) ||
+        if (!_managedHooks.TryGetValue(userData, out var registration) ||
                 registration.Callback is not InvalidMemoryAccessCallback target)
             throw new InvalidOperationException("Managed invalid memory access hook callback not found.");
 
@@ -662,7 +662,7 @@ public sealed class Unicorn : IUnicorn
 
     private ulong MMIOReadHandler(UIntPtr engine, ulong offset, uint size, nuint userData)
     {
-                if (!_managedHooks.TryGetValue(userData, out var registration) ||
+        if (!_managedHooks.TryGetValue(userData, out var registration) ||
                 registration.Callback is not MMIOReadCallback target)
             throw new InvalidOperationException("Managed MMIO read hook callback not found.");
 
@@ -671,7 +671,7 @@ public sealed class Unicorn : IUnicorn
 
     private void MMIOWriteHandler(UIntPtr engine, ulong offset, uint size, ulong value, nuint userData)
     {
-                if (!_managedHooks.TryGetValue(userData, out var registration) ||
+        if (!_managedHooks.TryGetValue(userData, out var registration) ||
                 registration.Callback is not MMIOWriteCallback target)
             throw new InvalidOperationException("Managed MMIO write hook callback not found.");
 
@@ -689,32 +689,32 @@ public sealed class Unicorn : IUnicorn
         nuint nextId;
         IntPtr nativeCallbackPtr;
 
-// Lock to serialize accesses to the internal managed callback counter and pointer cache
+        // Lock to serialize accesses to the internal managed callback counter and pointer cache
         lock (HookAddingLocker)
         {
-// Try to find an existing native function pointer for the given managed callback (delegate)
+            // Try to find an existing native function pointer for the given managed callback (delegate)
             if (!_nativeHookFunctionPointers.TryGetValue(nativeCallback, out nativeCallbackPtr))
             {
-// If it does not exist, create a new one and cache it
+                // If it does not exist, create a new one and cache it
                 nativeCallbackPtr = Marshal.GetFunctionPointerForDelegate(nativeCallback);
                 _nativeHookFunctionPointers.Add(nativeCallback, nativeCallbackPtr);
             }
 
-// The newly added managed hook will be identified by an internal ID taken from the counter
+            // The newly added managed hook will be identified by an internal ID taken from the counter
             // The counter is then incremented for the next call to AddHook
             nextId = ++_nextAddedManagedHookId;
         }
 
-// Unicorn's hook ID will be stored here
+        // Unicorn's hook ID will be stored here
         nuint nativeHookId = 0;
 
-// Call the native function
+        // Call the native function
         // The "user data" is an opaque value of (void *) size that simply gets stored inside Unicorn
         // and passed to the callback - we use it to identify the managed hook instance
         var result = Native.uc_hook_add(_engine, &nativeHookId, type, nativeCallbackPtr, nextId,
             startAddress, endAddress);
 
-// Check result and throw on error
+        // Check result and throw on error
         // If an error occurred, the internal ID will simply not be used and the native function
         // pointer will stay in cache - no need to reverse the above operations
         this.CheckResult(result);
@@ -728,7 +728,7 @@ public sealed class Unicorn : IUnicorn
             ManagedHookId = nextId
         };
 
-// Track the managed hook instance
+        // Track the managed hook instance
         _managedHooks.Add(nextId, registration);
 
         return registration;
@@ -913,7 +913,7 @@ public sealed class Unicorn : IUnicorn
                 HookType = -1
             });
 
-            userDataRead = new IntPtr(readId);
+            _managedMmioHookIds.Add((address, size), readId);
         }
 
         if (writeCallback != null)
@@ -927,7 +927,7 @@ public sealed class Unicorn : IUnicorn
                 HookType = -1
             });
 
-            userDataWrite = new IntPtr(writeId);
+            _managedMmioHookIds.Add((address, size), writeId);
         }
 
         var result = Native.uc_mmio_map(_engine, address, size, readPtr, readId,
@@ -936,12 +936,48 @@ public sealed class Unicorn : IUnicorn
         this.CheckResult(result);
     }
 
-    public void MemUnmap(ulong address, nuint size)
+    public void MemMapUnmanaged(ulong address, nuint size, IntPtr readCallbackPointer, IntPtr writeCallbackPointer,
+        nuint readCallbackUserData = 0, nuint writeCallbackUserData = 0)
     {
         this.EnsureEngine();
 
+        var result = Native.uc_mmio_map(_engine, address, size, readCallbackPointer, readCallbackUserData,
+            writeCallbackPointer, writeCallbackUserData);
+
+        this.CheckResult(result);
+    }
+
+    public void MemMapUnmanaged(ulong address, nuint size, Delegate? readCallback, Delegate? writeCallback,
+        nuint readCallbackUserData = 0, nuint writeCallbackUserData = 0)
+    {
+        this.EnsureEngine();
+
+        nint readCallbackPointer = 0, writeCallbackPointer = 0;
+
+        if (readCallback != null)
+            readCallbackPointer = Marshal.GetFunctionPointerForDelegate(readCallback);
+
+        if (writeCallback != null)
+            writeCallbackPointer = Marshal.GetFunctionPointerForDelegate(writeCallback);
+
+        var result = Native.uc_mmio_map(_engine, address, size, readCallbackPointer, readCallbackUserData,
+            writeCallbackPointer, writeCallbackUserData);
+
+        this.CheckResult(result);
+    }
+
+    public void MemUnmap(ulong address, nuint size)
+    {
+        this.EnsureEngine();
         var result = Native.uc_mem_unmap(_engine, address, size);
         this.CheckResult(result);
+
+        // The unmapped memory might have been a managed MMIO hook
+        if (_managedMmioHookIds.Remove((address, size), out var id))
+        {
+            // If so, stop tracking the delegate
+            _managedHooks.Remove(id);
+        }
     }
 
     #endregion
